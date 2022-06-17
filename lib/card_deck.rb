@@ -4,11 +4,15 @@ class CardDeck
 
   attr_accessor :deck
 
-  def initialize(card_type: PlayingCard)
-    @deck = []
-    card_type::RANKS.each do |rank|
-      card_type::SUITS.each do |suit|
-        @deck.push(card_type.new(rank, suit))
+  def initialize(card_type: PlayingCard, deck: nil)
+    if !deck.nil?
+      @deck = deck
+    else
+      @deck = []
+      card_type::RANKS.each do |rank|
+        card_type::SUITS.each do |suit|
+          @deck.push(card_type.new(rank, suit))
+        end
       end
     end
   end
