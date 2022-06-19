@@ -10,7 +10,7 @@ describe 'Broadcaster' do
     @server = TCPServer.new('localhost', Constants::TEST_PORT_NUMBER)
     @clients = (0..1).map { TCPSocket.new('localhost', Constants::TEST_PORT_NUMBER) }
     @sockets = (0..1).map { @server.accept }
-    @broadcast = Broadcaster.new(Constants::PLAYER_NAMES[0, 2], @sockets)
+    @broadcast = Broadcaster.new(names: Constants::PLAYER_NAMES[0, 2], sockets: @sockets)
   end
 
   after(:each) do
@@ -23,6 +23,12 @@ describe 'Broadcaster' do
     expect(@broadcast.sockets.values).to eq @sockets
   end
 
+  it 'can add additional sockets to the hash' do
+    TCPSocket.new('localhost', Constants::TEST_PORT_NUMBER)
+    @sockets.push(@server.accept)
+    @broadcast.add_socket(Constants::PLAYER_NAMES[2], @sockets[2])
+  end
+
   it 'sends regular broadcasts to clients' do
     @broadcast.send_regular_message(:all, 'Welcome to Go Fish!')
     @clients.each { |client| expect(get_message(client)).to eq [:general, 'Welcome to Go Fish!'] }
@@ -30,6 +36,15 @@ describe 'Broadcaster' do
     expect(get_message(@clients[0])).to eq [:general, 'You go first']
     @broadcast.send_regular_message(Constants::PLAYER_NAMES[0], 'Josh goes first', invert: true)
     expect(get_message(@clients[1])).to eq [:general, 'Josh goes first']
+  end
+
+  it 'can query a client for a username and add the socket and username to the sockets hash' do
+    @clients.push(TCPSocket.new('localhost', Constants::TEST_PORT_NUMBER))
+    @sockets.push(@server.accept)
+    @clients[2].puts Constants::PLAYER_NAMES[2]
+    @broadcast.add_user(@sockets[2])
+    expect(@broadcast.sockets.keys).to eq Constants::PLAYER_NAMES
+    expect(@broadcast.sockets.values).to eq @sockets
   end
 
 

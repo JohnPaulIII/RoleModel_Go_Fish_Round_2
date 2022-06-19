@@ -1,16 +1,19 @@
-require_relative '../lib/card_deck'
-require_relative '../lib/playing_card'
+require_relative 'card_deck'
+require_relative 'playing_card'
+require_relative 'player'
+require_relative 'broadcaster'
 
 class FishGame
 
   STARTING_HAND_COUNT = 7
 
-  attr_accessor :players, :deck, :round, :first_player_index
-  def initialize(player_names: [], deck: CardDeck.new)
+  attr_accessor :players, :deck, :round, :first_player_index, :broadcast
+  def initialize(player_names: [], deck: CardDeck.new, broadcast: Broadcaster.new)
     @players = player_names.map { |name| FishPlayer.new(name: name)}
     @deck = deck
     @round = 0
     @first_player_index = (0..players.count - 1).to_a.sample
+    @broadcast = broadcast
   end
 
   def start

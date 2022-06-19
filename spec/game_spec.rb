@@ -35,17 +35,20 @@ describe 'FishGame' do
 
     it 'The player asks for a card, and gets it' do
       rig_game(player_cards: [[card('A', 'Clubs')], [card('A', 'Spades')]])
-      play_rigged_round('A', player1_ending_hand: [card('A', 'Clubs'), card('A', 'Spades')])
+      play_round('A')
+      expected_results(player1_ending_hand: [card('A', 'Clubs'), card('A', 'Spades')])
     end
 
     it 'The player asks for a card, doesn\'t get it, and gets an identical rank from the deck' do
       rig_game(player_cards: [[card('A', 'Clubs')], [card('2', 'Spades')]], deck: [card('A', 'Spades')])
-      play_rigged_round('A', player1_ending_hand: [card('A', 'Clubs'), card('A', 'Spades')], player2_ending_hand: [card('2', 'Spades')])
+      play_round('A')
+      expected_results(player1_ending_hand: [card('A', 'Clubs'), card('A', 'Spades')], player2_ending_hand: [card('2', 'Spades')])
     end
 
     it 'The player asks for a card, doesn\'t get it, and doesn\'t get an identical rank from the deck' do
       rig_game(player_cards: [[card('A', 'Clubs')], [card('2', 'Spades')]], deck: [card('3', 'Spades')])
-      play_rigged_round('A', player1_ending_hand: [card('A', 'Clubs'), card('3', 'Spades')], player2_ending_hand: [card('2', 'Spades')], ending_player_turn: 1)
+      play_round('A')
+      expected_results(player1_ending_hand: [card('A', 'Clubs'), card('3', 'Spades')], player2_ending_hand: [card('2', 'Spades')], ending_player_turn: 1)
     end
 
     it 'The player starts his turn with no cards, and the deck still has cards' do
@@ -55,18 +58,21 @@ describe 'FishGame' do
 
     it 'The player starts his turn with no cards, and the deck is empty' do
       rig_game(player_cards: [[], [card('A', 'Clubs')]])
+      
       run_round_precheck(player2_ending_hand: [card('A', 'Clubs')], ending_player_turn: 1)
     end
 
     it 'The player completes a book while receiving cards' do
       rig_game(player_cards: [[card('A', 'Clubs'), card('A', 'Diamonds'), card('A', 'Hearts'), card('2', 'Clubs')], [card('A', 'Spades')]])
-      play_rigged_round('A', player1_ending_hand: [card('2', 'Clubs')], player1_ending_books: ['A'] )
+      play_round('A')
+      expected_results(player1_ending_hand: [card('2', 'Clubs')], player1_ending_books: ['A'] )
     end
     
     it 'The game finishes after a single round' do
       rig_game(player_cards: [[card('A', 'Clubs'), card('A', 'Diamonds'), card('A', 'Hearts')], [card('A', 'Spades')]], player_books: [%w( 2 3 4 5 6 7 8 9 10 J Q K ), []])
       expect(@game.over?)
-      play_rigged_round('A', player1_ending_books: %w( 2 3 4 5 6 7 8 9 10 J Q K ) )
+      play_round('A')
+      expected_results(player1_ending_books: %w( 2 3 4 5 6 7 8 9 10 J Q K ) )
       expect(@game.over?).to be true
     end
     
@@ -85,8 +91,11 @@ describe 'FishGame' do
     @game.first_player_index = 0
   end
 
-  def play_rigged_round(rank, player1_ending_hand: [], player2_ending_hand: [], player1_ending_books: [], ending_player_turn: 0)
+  def play_round(rank)
     @game.play_round(rank, PLAYER_NAMES[@game.first_player_index ^ 1])
+  end
+
+  def expected_results(player1_ending_hand: [], player2_ending_hand: [], player1_ending_books: [], ending_player_turn: 0)
     expect(@game.players[0].hand).to eq player1_ending_hand
     expect(@game.players[1].hand).to eq player2_ending_hand
     expect(@game.current_player_index).to eq ending_player_turn

@@ -4,7 +4,7 @@ class Broadcaster
 
   attr_accessor :sockets
 
-  def initialize(names, sockets)
+  def initialize(names: [], sockets: [])
     @sockets = {}
     names.each_index { |i| @sockets[names[i]] = sockets[i] }
   end
@@ -17,6 +17,16 @@ class Broadcaster
     else
       sockets[recipient].puts new_message(:general, message)
     end
+  end
+
+  def add_user(socket)
+    socket.puts new_message(:username, 'Please provide a username:')
+    name = socket.gets.chomp
+    add_socket(name, socket)
+  end
+
+  def add_socket(name, socket)
+    sockets[name] = socket
   end
 
   def new_message(command, message)
