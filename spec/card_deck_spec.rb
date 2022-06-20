@@ -1,5 +1,5 @@
-require_relative '../lib/card_deck'
-require_relative '../lib/playing_card'
+require 'card_deck'
+require 'playing_card'
 
 describe 'CardDeck' do
 

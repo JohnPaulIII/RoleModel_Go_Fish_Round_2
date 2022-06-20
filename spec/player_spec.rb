@@ -1,5 +1,5 @@
-require_relative '../lib/player'
-require_relative '../lib/playing_card'
+require 'player'
+require 'playing_card'
 
 describe 'GoFishPlayer' do 
   it 'initalizes with no arguments' do 
@@ -28,7 +28,7 @@ describe 'GoFishPlayer' do
     expect(player.hand).to eq []
   end
 
-  it 'creates_books' do 
+  it 'creates books' do 
     player = FishPlayer.new(name: 'Josh', hand: [card('A', 'Spades'), card('A', 'Hearts'), card('A', 'Clubs')])
     player.take_cards([card('A', 'Diamonds'), card('2', 'Spades')])
     expect(player.hand).to eq [card('2', 'Spades')]

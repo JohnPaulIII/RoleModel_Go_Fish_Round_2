@@ -5,20 +5,22 @@ require 'socket'
 
 class FishClient
 
-  attr_accessor :socket, :io_in, :io_out
+  attr_accessor :socket, :io_in, :io_out, :cards
 
   COMMANDS = {
     :general_broadcast => :general_broadcast,
-    :get_new_player_count => :get_new_player_count,
-    :username => :get_username,
-    :target_player => :get_target_player,
-    :target_rank => :get_target_rank,
+    :get_new_player_count => :get_response,
+    :username => :get_response,
+    :target_player => :get_response,
+    :target_rank => :get_response,
+    :get_cards => :get_cards,
   }
 
   def initialize(address: 'localhost', port: Constants::PORT_NUMBER, io_in: STDIN, io_out: STDOUT)
     @socket = TCPSocket.new(address, port)
     @io_in = io_in
     @io_out = io_out
+    @cards = []
   end
 
   def start
@@ -36,24 +38,13 @@ class FishClient
     io_out.puts message
   end
 
-  def get_new_player_count(message)
-    io_out.puts message
-    @socket.puts io_in.gets
-  end
-
-  def get_username(message)
-    io_out.puts message
-    @socket.puts io_in.gets
-  end
-
-  def get_target_player(message)
-    io_out.puts message
-    @socket.puts io_in.gets
-  end
-
-  def get_target_rank(message)
+  def get_response(message)
     io_out.puts message
     @socket.puts io_in.gets
   end
   
+  def get_cards(card_array)
+    cards.push(*card_array)
+  end
+
 end

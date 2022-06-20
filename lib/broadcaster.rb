@@ -10,14 +10,18 @@ class Broadcaster
     names.each_index { |i| @sockets[names[i]] = sockets[i] }
   end
 
-  def send_regular_message(recipient, message, invert: false)
+  def send_general_message(recipient, message, invert: false)
     if recipient == :all
       sockets.each_value { |socket| socket.puts new_message(:general_broadcast, message)}
     elsif invert
       sockets.select {|name, _| name != recipient }.each_value { |socket| socket.puts new_message(:general_broadcast, message)}
     else
-      sockets[recipient].puts new_message(:general_broadcast, message)
+      sockets.select {|name, _| name == recipient }.each_value { |socket| socket.puts new_message(:general_broadcast, message)}
     end
+  end
+
+  def send_cards(player_name, abbreviated_card_array)
+    sockets[player_name].puts new_message(:get_cards, abbreviated_card_array)
   end
 
   def get_target_player(player_name)

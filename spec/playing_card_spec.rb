@@ -1,4 +1,4 @@
-require_relative '../lib/playing_card'
+require 'playing_card'
 
 describe 'PlayingCard' do
 

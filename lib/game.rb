@@ -58,6 +58,7 @@ class FishGame
 
   def go_fish(rank)
     @round += 1 if deck.out?
+    broadcast.send_general_message(:all, "#{current_player} has run out of cards and the deck is empty.\nGame proceeds to the next player.")
     return if deck.out?
     card = deck.deal
     current_player.take_cards(card)

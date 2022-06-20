@@ -1,4 +1,4 @@
-require_relative '../lib/server'
+require 'server'
 require_relative 'spec_constants'
 include Constants
 require 'pry'

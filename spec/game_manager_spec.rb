@@ -1,4 +1,4 @@
-require_relative '../lib/game_manager'
+require 'game_manager'
 require_relative 'spec_constants'
 include Constants
 require 'socket'

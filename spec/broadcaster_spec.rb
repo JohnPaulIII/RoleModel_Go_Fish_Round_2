@@ -1,4 +1,4 @@
-require_relative '../lib/broadcaster'
+require 'broadcaster'
 require_relative 'spec_constants'
 include Constants  
 require 'socket'
@@ -31,11 +31,11 @@ describe 'Broadcaster' do
   end
 
   it 'sends regular broadcasts to clients' do
-    broadcast.send_regular_message(:all, 'Welcome to Go Fish!')
+    broadcast.send_general_message(:all, 'Welcome to Go Fish!')
     clients.each { |client| expect(get_message(client)).to eq [:general_broadcast, 'Welcome to Go Fish!'] }
-    broadcast.send_regular_message(Constants::PLAYER_NAMES[0], 'You go first')
+    broadcast.send_general_message(Constants::PLAYER_NAMES[0], 'You go first')
     expect(get_message(clients[0])).to eq [:general_broadcast, 'You go first']
-    broadcast.send_regular_message(Constants::PLAYER_NAMES[0], 'Josh goes first', invert: true)
+    broadcast.send_general_message(Constants::PLAYER_NAMES[0], 'Josh goes first', invert: true)
     expect(get_message(clients[1])).to eq [:general_broadcast, 'Josh goes first']
   end
 
@@ -46,6 +46,11 @@ describe 'Broadcaster' do
     broadcast.add_user(sockets[2])
     expect(broadcast.sockets.keys).to eq Constants::PLAYER_NAMES
     expect(broadcast.sockets.values).to eq sockets
+  end
+
+  it 'can send cards to the client' do
+    broadcast.send_cards(Constants::PLAYER_NAMES[0], %w( AH 2S 10C KD ))
+    expect(get_message(clients[0])).to eq [:get_cards, %w( AH 2S 10C KD )]
   end
 
   it 'can query a client for a target player and return the resulting name' do

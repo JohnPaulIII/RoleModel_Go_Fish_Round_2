@@ -1,4 +1,4 @@
-require_relative '../lib/client'
+require 'client'
 require_relative 'spec_constants'
 include Constants
 require 'pry'
@@ -88,6 +88,11 @@ describe 'FishClient' do
       client.command_processor(new_message(:target_rank, 'Please pick a rank to ask for:'))
       expect(mock_output.posts).to eq ['Please pick a rank to ask for:']
       expect(socket.gets.chomp).to eq 'A'
+    end
+
+    it 'can receive cards from the server' do
+      client.command_processor(new_message(:get_cards, %w( AH 2S 10C KD )))
+      expect(client.cards).to eq %w( AH 2S 10C KD )
     end
 
   end

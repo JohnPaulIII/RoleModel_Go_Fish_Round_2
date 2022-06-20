@@ -1,4 +1,4 @@
-require_relative '../lib/packet_wrapper'
+require 'packet_wrapper'
 require_relative 'spec_constants'
 include Constants  
 
