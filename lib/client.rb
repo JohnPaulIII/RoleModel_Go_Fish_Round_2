@@ -8,7 +8,7 @@ class FishClient
   attr_accessor :socket, :io_in, :io_out
 
   COMMANDS = {
-    :general => :general_broadcast,
+    :general_broadcast => :general_broadcast,
     :get_new_player_count => :get_new_player_count,
     :username => :get_username,
     :target_player => :get_target_player,

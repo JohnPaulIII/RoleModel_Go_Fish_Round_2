@@ -12,11 +12,11 @@ class Broadcaster
 
   def send_regular_message(recipient, message, invert: false)
     if recipient == :all
-      sockets.each_value { |socket| socket.puts new_message(:general, message)}
+      sockets.each_value { |socket| socket.puts new_message(:general_broadcast, message)}
     elsif invert
-      sockets.select {|name, _| name != recipient }.each_value { |socket| socket.puts new_message(:general, message)}
+      sockets.select {|name, _| name != recipient }.each_value { |socket| socket.puts new_message(:general_broadcast, message)}
     else
-      sockets[recipient].puts new_message(:general, message)
+      sockets[recipient].puts new_message(:general_broadcast, message)
     end
   end
 

@@ -41,6 +41,8 @@ end
 
 describe 'FishClient' do
 
+  attr_accessor :server, :mock_input, :mock_output, :client, :socket
+
   before(:each) do
     @server = TCPServer.new('localhost', Constants::TEST_PORT_NUMBER)
     @mock_input = MockInput.new
@@ -50,42 +52,42 @@ describe 'FishClient' do
   end
 
   after(:each) do
-    @server.close
+    server.close
   end
 
   describe '#command_processor' do
 
     it 'can receive a general broadcast and show it on terminal',:focus do
-      @client.command_processor(new_message(:general, 'Welcome to Go Fish!'))
-      expect(@mock_output.posts).to eq ['Welcome to Go Fish!']
+      client.command_processor(new_message(:general_broadcast, 'Welcome to Go Fish!'))
+      expect(mock_output.posts).to eq ['Welcome to Go Fish!']
     end
     
     it 'can query for the number of players for the next game' do
-      @mock_input.set_input('2')
-      @client.command_processor(new_message(:get_new_player_count, 'Please enter the number of players you want in the next game:'))
-      expect(@mock_output.posts).to eq ['Please enter the number of players you want in the next game:']
-      expect(@socket.gets.chomp).to eq '2'
+      mock_input.set_input('2')
+      client.command_processor(new_message(:get_new_player_count, 'Please enter the number of players you want in the next game:'))
+      expect(mock_output.posts).to eq ['Please enter the number of players you want in the next game:']
+      expect(socket.gets.chomp).to eq '2'
     end
 
     it 'can query the player for a username' do
-      @mock_input.set_input('Josh')
-      @client.command_processor(new_message(:username, 'Please provide a username:'))
-      expect(@mock_output.posts).to eq ['Please provide a username:']
-      expect(@socket.gets.chomp).to eq 'Josh'
+      mock_input.set_input('Josh')
+      client.command_processor(new_message(:username, 'Please provide a username:'))
+      expect(mock_output.posts).to eq ['Please provide a username:']
+      expect(socket.gets.chomp).to eq 'Josh'
     end
 
     it 'can query the player for a target player' do
-      @mock_input.set_input('Josh')
-      @client.command_processor(new_message(:target_player, 'Please pick an opponent to ask for cards:'))
-      expect(@mock_output.posts).to eq ['Please pick an opponent to ask for cards:']
-      expect(@socket.gets.chomp).to eq 'Josh'
+      mock_input.set_input('Josh')
+      client.command_processor(new_message(:target_player, 'Please pick an opponent to ask for cards:'))
+      expect(mock_output.posts).to eq ['Please pick an opponent to ask for cards:']
+      expect(socket.gets.chomp).to eq 'Josh'
     end
 
     it 'can query the player for a target rank' do
-      @mock_input.set_input('A')
-      @client.command_processor(new_message(:target_rank, 'Please pick a rank to ask for:'))
-      expect(@mock_output.posts).to eq ['Please pick a rank to ask for:']
-      expect(@socket.gets.chomp).to eq 'A'
+      mock_input.set_input('A')
+      client.command_processor(new_message(:target_rank, 'Please pick a rank to ask for:'))
+      expect(mock_output.posts).to eq ['Please pick a rank to ask for:']
+      expect(socket.gets.chomp).to eq 'A'
     end
 
   end
