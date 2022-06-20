@@ -1,7 +1,7 @@
 require_relative '../lib/broadcaster'
 require_relative 'spec_constants'
-require 'socket'
 include Constants  
+require 'socket'
 
 describe 'Broadcaster' do
   
@@ -45,6 +45,18 @@ describe 'Broadcaster' do
     @broadcast.add_user(@sockets[2])
     expect(@broadcast.sockets.keys).to eq Constants::PLAYER_NAMES
     expect(@broadcast.sockets.values).to eq @sockets
+  end
+
+  it 'can query a client for a target player and return the resulting name' do
+    @clients[0].puts Constants::PLAYER_NAMES[1]
+    result = @broadcast.get_target_player(Constants::PLAYER_NAMES[0])
+    expect(result).to eq Constants::PLAYER_NAMES[1]
+  end
+
+  it 'can query a client for a target rank and return the resulting name' do
+    @clients[0].puts 'A'
+    result = @broadcast.get_target_rank(Constants::PLAYER_NAMES[0])
+    expect(result).to eq 'A'
   end
 
 

@@ -1,4 +1,5 @@
 require_relative 'packet_wrapper'
+require 'pry'
 
 class Broadcaster
 
@@ -17,6 +18,16 @@ class Broadcaster
     else
       sockets[recipient].puts new_message(:general, message)
     end
+  end
+
+  def get_target_player(player_name)
+    sockets[player_name].puts new_message(:target_player, 'Please pick an opponent to ask for cards:')
+    sockets[player_name].gets.chomp
+  end
+
+  def get_target_rank(player_name)
+    sockets[player_name].puts new_message(:target_rank, 'Please pick a rank to ask for:')
+    sockets[player_name].gets.chomp
   end
 
   def add_user(socket)

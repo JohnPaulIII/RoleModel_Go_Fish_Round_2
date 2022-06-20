@@ -1,4 +1,6 @@
 require_relative 'client'
 
-client = FishClient.new
+puts 'Please enter the server IP address:'
+address = STDIN.gets.chomp
+client = FishClient.new(address: address)
 client.start

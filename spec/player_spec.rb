@@ -1,4 +1,5 @@
 require_relative '../lib/player'
+require_relative '../lib/playing_card'
 
 describe 'GoFishPlayer' do 
   it 'initalizes with no arguments' do 

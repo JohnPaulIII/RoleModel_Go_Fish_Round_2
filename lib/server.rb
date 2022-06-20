@@ -1,12 +1,14 @@
 require_relative 'broadcaster'
 require_relative 'game_manager'
+require_relative 'constants'
+include Constants 
 require 'socket'
 
 class FishServer
 
   attr_accessor :server, :sockets, :player_count_for_game, :manager, :logging
 
-  def initialize(address: 'localhost', port: 3336, logging: true)
+  def initialize(address: 'localhost', port: Constants::PORT_NUMBER, logging: true)
     @server = TCPServer.new(address, port)
     @sockets = []
     @player_count_for_game = 0

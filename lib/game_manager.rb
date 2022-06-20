@@ -17,9 +17,12 @@ class FishGameManager
 
   def game_loop
     while !game.over?
-      target_player = broadcast.get_target_player(game.current_player.name)
-      target_rank = broadcast.get_target_rank(game.current_player.name)
-      game.play_round(target_rank, target_player)
+      puts 'getting player'
+      puts target_player = broadcast.get_target_player(game.current_player.name)
+      puts 'getting rank'
+      puts target_rank = broadcast.get_target_rank(game.current_player.name)
+      puts game.play_round(target_rank, target_player)
     end
   end
+
 end
