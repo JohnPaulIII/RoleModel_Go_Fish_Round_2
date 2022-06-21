@@ -44,6 +44,10 @@ class Broadcaster
     sockets[name] = socket
   end
 
+  def set_players
+    sockets.each_value { |socket| socket.puts new_message(:set_players, sockets.keys) }
+  end
+
   def new_message(command, message)
     PacketWrapper.new(command: command, message: message).dump
   end

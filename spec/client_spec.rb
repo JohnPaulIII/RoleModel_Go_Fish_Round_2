@@ -30,7 +30,7 @@ class MockInput
   end
 
   def set_input(text)
-    @inputs.push(text)
+    @inputs.push(*text)
   end
 
   def gets
@@ -57,7 +57,7 @@ describe 'FishClient' do
 
   describe '#command_processor' do
 
-    it 'can receive a general broadcast and show it on terminal',:focus do
+    it 'can receive a general broadcast and show it on terminal' do
       client.command_processor(new_message(:general_broadcast, 'Welcome to Go Fish!'))
       expect(mock_output.posts).to eq ['Welcome to Go Fish!']
     end
@@ -76,11 +76,26 @@ describe 'FishClient' do
       expect(socket.gets.chomp).to eq 'Josh'
     end
 
+    it 'can store the opponents received from the server' do
+      client.username = 'Josh'
+      client.command_processor(new_message(:set_players, Constants::PLAYER_NAMES))
+      expect(client.players).to eq Constants::PLAYER_NAMES[1,2]
+    end
+
     it 'can query the player for a target player' do
-      mock_input.set_input('Josh')
+      client.players = Constants::PLAYER_NAMES[1,2]
+      mock_input.set_input('Braden')
       client.command_processor(new_message(:target_player, 'Please pick an opponent to ask for cards:'))
       expect(mock_output.posts).to eq ['Please pick an opponent to ask for cards:']
-      expect(socket.gets.chomp).to eq 'Josh'
+      expect(socket.gets.chomp).to eq 'Braden'
+    end
+
+    it 'checks for a valid target player' do
+      client.players = Constants::PLAYER_NAMES[1,2]
+      mock_input.set_input(['Caleb', 'Braden'])
+      client.command_processor(new_message(:target_player, 'Please pick an opponent to ask for cards:'))
+      expect(mock_output.posts).to eq ['Please pick an opponent to ask for cards:', "Invalid target.  Please enter a valid player username"]
+      expect(socket.gets.chomp).to eq 'Braden'
     end
 
     it 'can query the player for a target rank' do
@@ -89,10 +104,18 @@ describe 'FishClient' do
       expect(mock_output.posts).to eq ['Please pick a rank to ask for:']
       expect(socket.gets.chomp).to eq 'A'
     end
-
+    
+    it 'checks for a valid target rank' do
+      mock_input.set_input(['Ace', 'A'])
+      client.command_processor(new_message(:target_rank, 'Please pick a rank to ask for:'))
+      expect(mock_output.posts).to eq ['Please pick a rank to ask for:', "Invalid rank.  Please enter a valid rank"]
+      expect(socket.gets.chomp).to eq 'A'
+    end
+    
     it 'can receive cards from the server' do
       client.command_processor(new_message(:get_cards, %w( AH 2S 10C KD )))
       expect(client.cards).to eq %w( AH 2S 10C KD )
+      expect(mock_output.posts).to eq ['You have:', 'Ace of Hearts', '2 of Spades', '10 of Clubs', 'King of Diamonds']
     end
 
   end

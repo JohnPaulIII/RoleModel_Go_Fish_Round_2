@@ -25,14 +25,15 @@ class FishPlayer
   end
 
   def check_for_books 
-    ranks = []
+    new_books = []
     hand.map { |card| card.rank }.uniq.each do |card_rank|
       if hand.count { |card| card.rank == card_rank } > 3
         books.push(card_rank)
+        new_books.push(card_rank)
         hand.reject! { |card| card.rank == card_rank }
       end
     end
-    ranks
+    new_books
   end
 
 end

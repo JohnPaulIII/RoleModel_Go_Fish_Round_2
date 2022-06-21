@@ -1,10 +1,11 @@
 require 'game'
+require 'socket'
 require_relative 'spec_constants'
 include Constants  
 
 describe 'FishGame' do 
 
-  attr_accessor :game
+  attr_accessor :game, :server, :clients, :sockets, :broadcast
 
   it 'initalizes without arguments' do 
     @game = FishGame.new
@@ -28,60 +29,81 @@ describe 'FishGame' do
     game.players.each { |p| expect(p.hand.count) == FishGame::STARTING_HAND_COUNT}
   end
 
+  it 'can reduce a player\'s hand to a simple string array' do
+    @game = FishGame.new(player_names: Constants::PLAYER_NAMES)
+    game.players[0].hand = [card('A', 'Clubs'), card('2', 'Spades'), card('10', 'Hearts'), card('J', 'Diamonds')]
+    game.first_player_index = 0
+    expect(game.get_abbreviated_player_cards).to eq %w( AC 2S 10H JD )
+  end
+
   describe '#play_round:' do
 
     before(:each) do
-      @game = FishGame.new(player_names: Constants::PLAYER_NAMES[0,2], deck: CardDeck.new(deck: []))
+      @server = TCPServer.new('localhost', Constants::TEST_PORT_NUMBER)
+      @clients = (0..2).to_a.map { TCPSocket.new('localhost', Constants::TEST_PORT_NUMBER) }
+      @sockets = (0..2).to_a.map { server.accept }
+      @broadcast = Broadcaster.new(names: Constants::PLAYER_NAMES, sockets: sockets)
+      @game = FishGame.new(player_names: Constants::PLAYER_NAMES[0,2], deck: CardDeck.new(deck: []), broadcast: broadcast)
+    end
+
+    after(:each) do
+      server.close
+      clients.each { |client| client.close }
     end
 
     it 'The player asks for a card, and gets it' do
       setup_rig_game(player_cards: [[card('A', 'Clubs')], [card('A', 'Spades')]])
-      game.play_round('A', PLAYER_NAMES[game.first_player_index ^ 1])
-      expected_round_results(player1_ending_hand: [card('A', 'Clubs'), card('A', 'Spades')])
+      round_result = game.play_round('A', PLAYER_NAMES[1])
+      expect(round_result.go_fish).to be false
+      expect(round_result.resulting_cards).to eq [card('A', 'Spades')]
     end
 
-    it 'The player asks for a card, doesn\'t get it, and gets an identical rank from the deck' do
+    it 'The player asks for a card, doesn\'t get it, and gets an identical rank from the deck', :focus do
       setup_rig_game(player_cards: [[card('A', 'Clubs')], [card('2', 'Spades')]], deck: [card('A', 'Spades')])
-      game.play_round('A', PLAYER_NAMES[game.first_player_index ^ 1])
-      expected_round_results(player1_ending_hand: [card('A', 'Clubs'), card('A', 'Spades')], player2_ending_hand: [card('2', 'Spades')])
+      round_result = game.play_round('A', PLAYER_NAMES[1])
+      expect(round_result.go_fish).to be true
+      expect(round_result.got_match).to be true
+      expect(round_result.resulting_cards).to eq [card('A', 'Spades')]
     end
 
     it 'The player asks for a card, doesn\'t get it, and doesn\'t get an identical rank from the deck' do
       setup_rig_game(player_cards: [[card('A', 'Clubs')], [card('2', 'Spades')]], deck: [card('3', 'Spades')])
-      game.play_round('A', PLAYER_NAMES[game.first_player_index ^ 1])
-      expected_round_results(player1_ending_hand: [card('A', 'Clubs'), card('3', 'Spades')], player2_ending_hand: [card('2', 'Spades')], ending_player_turn: 1)
+      round_result = game.play_round('A', PLAYER_NAMES[1])
+      expect(round_result.go_fish).to be true
+      expect(round_result.got_match).to be false
+      expect(round_result.resulting_cards).to eq [card('3', 'Spades')]
     end
 
     it 'The player starts his turn with no cards, and the deck still has cards' do
       setup_rig_game(deck: [card('A', 'Clubs')])
       game.round_precheck
-      expected_after_round_precheck(player1_ending_hand: [card('A', 'Clubs')])
+      expect(game.players[0].hand).to eq [card('A', 'Clubs')]
+      expect(game.current_player_index).to eq 0
     end
 
     it 'The player starts his turn with no cards, and the deck is empty' do
       setup_rig_game(player_cards: [[], [card('A', 'Clubs')]])
       game.round_precheck
-      expected_after_round_precheck(player2_ending_hand: [card('A', 'Clubs')], ending_player_turn: 1)
+      expect(game.players[0].hand).to eq []
+      expect(game.current_player_index).to eq 1
     end
 
     it 'The player completes a book while receiving cards' do
       setup_rig_game(player_cards: [[card('A', 'Clubs'), card('A', 'Diamonds'), card('A', 'Hearts'), card('2', 'Clubs')], [card('A', 'Spades')]])
-      game.play_round('A', PLAYER_NAMES[game.first_player_index ^ 1])
-      expected_round_results(player1_ending_hand: [card('2', 'Clubs')], player1_ending_books: ['A'] )
+      round_result = game.play_round('A', PLAYER_NAMES[1])
+      expect(round_result.new_books).to eq ['A']
+      expect(round_result.resulting_cards).to eq [card('A', 'Spades')]
     end
     
     it 'The game finishes after a single round' do
       setup_rig_game(player_cards: [[card('A', 'Clubs'), card('A', 'Diamonds'), card('A', 'Hearts')], [card('A', 'Spades')]], player_books: [%w( 2 3 4 5 6 7 8 9 10 J Q K ), []])
-      expect(game.over?)
-      game.play_round('A', PLAYER_NAMES[game.first_player_index ^ 1])
-      expected_round_results(player1_ending_books: %w( 2 3 4 5 6 7 8 9 10 J Q K A ) )
+      expect(game.over?).to be false
+      round_result = game.play_round('A', PLAYER_NAMES[1])
+      expect(round_result.new_books).to eq ['A']
+      expect(round_result.resulting_cards).to eq [card('A', 'Spades')]
       expect(game.over?).to be true
     end
     
-  end
-
-  def new_game(player_names: Constants::PLAYER_NAMES, deck: CardDeck.new)
-    FishGame.new(player_names: player_names, deck: deck)
   end
 
   def setup_rig_game(player_cards: [[], []], player_books: [[], []], deck: [])
@@ -91,14 +113,6 @@ describe 'FishGame' do
     end
     game.deck = CardDeck.new(deck: deck)
     game.first_player_index = 0
-  end
-
-  def expected_round_results(player1_ending_hand: [], player2_ending_hand: [], player1_ending_books: [], ending_player_turn: 0)
-    expect(game.players[0].hand).to eq player1_ending_hand
-    expect(game.players[0].books).to eq player1_ending_books
-    expect(game.players[1].hand).to eq player2_ending_hand
-    expect(game.current_player_index).to eq ending_player_turn
-    expect(game.deck.card_count).to eq 0
   end
 
   def expected_after_round_precheck(player1_ending_hand: [], player2_ending_hand: [], ending_player_turn: 0)
