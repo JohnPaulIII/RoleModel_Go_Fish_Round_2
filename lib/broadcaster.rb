@@ -48,6 +48,10 @@ class Broadcaster
     sockets.each_value { |socket| socket.puts new_message(:set_players, sockets.keys) }
   end
 
+  def send_round_results(round_result)
+    
+  end
+
   def new_message(command, message)
     PacketWrapper.new(command: command, message: message).dump
   end

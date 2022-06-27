@@ -22,7 +22,7 @@ class FishGameManager
       broadcast.send_cards(game.current_player.name, game.get_abbreviated_player_cards)
       puts target_player = broadcast.get_target_player(game.current_player.name)
       puts target_rank = broadcast.get_target_rank(game.current_player.name)
-      game.play_round(target_rank, target_player)
+      broadcast.send_round_results(game.play_round(target_rank, target_player))
     end
   end
 

@@ -1,11 +1,12 @@
 require 'broadcaster'
+require 'game'
 require_relative 'spec_constants'
 include Constants  
 require 'socket'
 
 describe 'Broadcaster' do
   
-  attr_accessor :server, :clients, :sockets, :broadcast
+  attr_accessor :server, :clients, :sockets, :broadcast, :round_result
 
   before(:each) do
     @server = TCPServer.new('localhost', Constants::TEST_PORT_NUMBER)
@@ -65,6 +66,33 @@ describe 'Broadcaster' do
     expect(result).to eq 'A'
   end
 
+  describe '#send_round_results' do
+
+    it 'sends the correct set of messages when cards are taken from a player' do
+
+    end
+
+    it 'sends the correct set of messages when cards are not taken from a player, and a match is made from going fish' do
+
+    end
+
+    it 'sends the correct set of messages when cards are not taken from a player, and a match is not made from going fish' do
+
+    end
+
+    # it 'sends the correct set of messages when cards are taken from a player' do
+
+    # end
+
+    def build_round_result(go_fish: true, got_match: false, new_books: [], resulting_cards: [])
+      @round_result = RoundResult.new('Josh', 'Braden', 'A')
+      round_result.go_fish = go_fish
+      round_result.got_match = got_match
+      round_result.new_books = new_books
+      round_result.resulting_cards = resulting_cards
+    end
+
+  end
 
   def get_message(client)
     broadcast = Marshal.load(client.gets)

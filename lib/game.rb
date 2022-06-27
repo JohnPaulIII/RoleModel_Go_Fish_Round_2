@@ -56,7 +56,7 @@ class FishGame
   end
 
   def get_player(name)
-    players.select { |player| player.name == name}[0]
+    players.find { |player| player.name == name}
   end
 
   def go_fish(rank)

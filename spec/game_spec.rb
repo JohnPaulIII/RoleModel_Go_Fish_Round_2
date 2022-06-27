@@ -114,12 +114,6 @@ describe 'FishGame' do
     game.deck = CardDeck.new(deck: deck)
     game.first_player_index = 0
   end
-
-  def expected_after_round_precheck(player1_ending_hand: [], player2_ending_hand: [], ending_player_turn: 0)
-    expect(game.players[0].hand).to eq player1_ending_hand
-    expect(game.players[1].hand).to eq player2_ending_hand
-    expect(game.current_player_index).to eq ending_player_turn
-  end
   
   def card(rank, suit)
     PlayingCard.new(rank, suit)
